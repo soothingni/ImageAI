@@ -21,10 +21,6 @@ def goURL(msg, url):
     html = html.replace("@url", url)
     return html
 
-def detectFace(img):
-    return img
-
-
 @app.route('/')
 def index():
     return render_template('home.html', title='my home page')
@@ -46,16 +42,17 @@ def fileUpload():
     f = request.files["file1"]
     title = request.form.get("title")
     algorithm = request.form.get("algorithm")
-    f.save('./static/' + f.filename)
+    algorithm = int(algorithm)
+    src = './static/' + f.filename
+    f.save(src)
     if algorithm == 0:
-        processed = yolo3('./static/' + f.filename)
-
-    elif algorithm == 1:
-        processed = detectFace('./static/' + f.filename)
-
-    cv.imwrite('./static/' + f.filename, processed)
+        processed = yolo3(src)
+    else:
+        processed = detectFace(src)
+    path =  f.filename.split('.')[0] + '_processed' + '.jpg'
+    cv.imwrite('./static/' + path, processed)
     id = listData[-1]['id'] + 1
-    listData.append({"id": id, "img": f.filename, "title": title})
+    listData.append({"id": id, "img": path, "title": title})
     return goURL("업로드가 성공했습니다.", "/image")
 
 @app.route('/deleteimage')  #/delete?id=0
