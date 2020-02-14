@@ -10,7 +10,7 @@ from imutils import paths
 import pickle
 
 
-def faceverification(model, img):    #img는 이미지 경로
+def faceverification(model, img):    #model은 학습한 bin파일, img는 이미지 경로
     data = pickle.loads(open(model, "rb").read())
     image = cv2.imread(img)
 
