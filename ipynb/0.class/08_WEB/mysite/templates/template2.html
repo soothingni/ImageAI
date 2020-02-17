@@ -1,0 +1,37 @@
+<meta charset="utf-8">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+user list <br>
+
+{% for d in data %}
+
+    이름 {{d.name}}  age {{d.age}} <a href="?userid={{d.userid}}"> 삭제 </a> <br>
+
+{% endfor %}
+
+<form action="">    <!--검색할 때는 GET-->
+    <input type="text" name="q"/>
+    <input type="submit" value="검색"/>
+</form>
+
+<button id="add"> 유저 추가하기 </button>
+
+<div id="layer">
+<form action="" method="post">   <!--쓸 때는 POST-->
+    {% csrf_token %}
+    아이디 <input type="text" name="userid" /> <br>
+    이름 <input type="text" name="name"/>  <br>
+    나이 <input type="text" name="age"/>  <br>
+    취미 <input type="text" name="hobby"/>  <br>
+    <input type="submit" value="ADD"/>
+</form>
+</div>
+
+
+<script>
+    $("#layer").hide()
+    $("#add").click(function() {
+        $("#layer").toggle()
+    });
+</script>

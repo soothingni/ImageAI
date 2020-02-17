@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from . import face
+from myapp.models import User
 
 def goURL(msg, url):
     html = """
@@ -60,3 +61,22 @@ def uploadimage(req):
     html = goURL("등록되지 않은 사용자입니다. 다시 시도해주세요.", "/static/login.html")
     return HttpResponse(html)
 
+
+def listUser(request):
+    if request.method == 'GET':  #GET 방식으로 요청이 들어왔을 경우
+        q = request.GET.get('q', "")
+        del_id = request.GET.get('userid', "")
+        data = User.objects.all()
+        if q != "":
+            data = User.objects.all().filter(name__contains=q)
+        elif del_id != "":
+            data.get(userid=del_id).delete()   #get: filter랑 똑같은데, 결과가 1개 일때만 가능
+            return redirect('/listuser')
+        return render(request, 'template2.html', {"data": data})
+    else:                      #POST 방식으로 요청이 들어왔을 경우
+        u = User(userid=request.POST.get('userid'),
+                 name=request.POST.get('name'),
+                 age=request.POST.get('age'),
+                 hobby=request.POST.get('hobby'))
+        u.save()
+        return redirect("/listuser")
