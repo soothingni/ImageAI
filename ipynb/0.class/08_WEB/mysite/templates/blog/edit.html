@@ -1,0 +1,9 @@
+
+<form action="{% url 'edit' pk %}" method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}    <!--form 객체의 명령어 as_p를 활용해서 알아서 맵핑하게 한다-->
+
+    <input type="submit" value="작성" />
+
+</form>
