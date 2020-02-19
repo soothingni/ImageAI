@@ -7,6 +7,6 @@
     {{d.title}} <br>
     {{d.text|linebreaks}} <br>   <!-- '|linebreaks' : html에서 '\n'을 <br>로 인식하도록 한다. -->
 
-    <a href="{% url 'edit' d.pk %}"> 수정 </a>
+    <a href="{% url 'edit' d.pk 'edit' %}"> 수정 </a>
 
 {% endblock %}

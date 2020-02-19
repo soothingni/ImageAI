@@ -1,0 +1,18 @@
+{% extends 'myboard/base.html' %}   <!--이 소스로 다른 소스를 채울 거라는 걸 명시한다-->
+
+게시물 보기 <br>
+
+{% block content %}
+
+    제목: {{d.title}} <br><br>
+    조회수: {{d.cnt}} <br><br>
+    내용: <br>
+    {{d.text|linebreaks}}<br>
+    {% if d.image != None %}
+    <img src="/static/{{d.image}}" width="300"> <br>
+    {% endif %}
+
+    <a href="{% url 'myboard' d.category d.pk 'edit' %}">  수정  </a>
+    <a href="{% url 'myboard' d.category d.pk 'delete' %}">  삭제  </a>
+
+{% endblock %}

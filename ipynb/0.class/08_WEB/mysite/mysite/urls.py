@@ -24,4 +24,5 @@ urlpatterns = [
     path('ajax/', include('ajax.urls')),
     path('admin/', admin.site.urls),
     path('blog/', include('blog.urls')),
+    path('myboard/', include('myboard.urls')),
 ]
