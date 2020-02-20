@@ -1,0 +1,52 @@
+<head>
+  <meta charset="UTF-8">
+</head>
+
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+<button id="btnAdd">Add</button>
+
+<div id="view">
+    <div id="item">  <!-- 복사하기 위해 존재하는 템플릿이므로 hide 해준다. -->
+        <a href="list?id=4"> <span id="title">제목</span></a>
+        조회수 <span id="cnt"> 5 </span>
+        <a id='del' href=javascript:deleteBoard(1)>지우기</a>
+        <br>
+    </div>
+</div>
+
+<script>
+    $("#item").hide();
+
+    var page = 1
+
+    function deleteBoard(pk){
+         $.get("/myboard/ajaxdel", {pk:pk}, function(json) {
+            alert(json.result);
+            $("#item_" + pk).remove();
+        });
+    };
+
+    function getPage(page){
+        $.get("/myboard/ajaxget", {page:page}, function(json) {
+            console.log(JSON.stringify(json));
+             for (i = 0; i < json.datas.length; i ++) {
+                item = $("#item").clone();
+                item.attr("id", "item_" + json.datas[i].pk)                 /* 삭제를 위해 아이템별로 고유 id를 부여한다. */
+                item.show();   /*hide까지 복사해버렸으므로 복사 후에는 show 해준다.*/
+                $("#title", item).html(json.datas[i].title);    /*셀렉터를 찾을 위치를 item으로 한정시켜주기*/
+                $("#del", item).attr("href", "javascript:deleteBoard(" + json.datas[i].pk + ")");
+                $("#cnt", item).text(json.datas[i].cnt);
+                $("#view").append(item);
+            }
+        });
+    }
+
+    $("#btnAdd").click(function() {
+        page++;
+        getPage(page);
+    });
+    getPage(page);     //맨 처음 로딩됐을 때 (Add 버튼을 누르지 않아도) page=1 데이터가 로딩되도록
+
+</script>

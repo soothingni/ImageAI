@@ -1,12 +1,31 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 from django.contrib.auth.models import User
 from . import forms
 from . import models
 from django.conf import settings
+from django.core.paginator import Paginator
 
 # Create your views here.
+
+def ajaxdel(request):   #게시물 지우기
+    pk = request.GET.get("pk")
+    board = models.Board.objects.get(pk=pk)
+    title = board.title
+    #board.delete()
+    result = f'{title}을 성공적으로 삭제했습니다.'
+    return JsonResponse({'error': 0, 'result': result})
+
+def ajaxget(request):   #페이지를 요청했을 때 해당 페이지 데이터를 전부 가져오기
+    page = request.GET.get('page', 1)
+    print(request.GET)
+    datas = models.Board.objects.all().filter(category = 'common')
+    page = int(page)
+    sub = datas[(page-1)*3 : page*3]
+    datas = {"datas": [{'pk': x.pk, 'title': x.title, 'cnt': x.cnt} for x in sub]}
+    return JsonResponse(datas)
+
 class BoardView(View):
     def get(self, request, category, pk, mode):
         if mode == 'add':
@@ -14,8 +33,11 @@ class BoardView(View):
         elif mode == 'list':
             username = request.session['username']
             user = User.objects.get(username=username)
-            data = models.Board.objects.all().filter(category=category)
-            context = {"data": data, "category": category, "username": username}
+            datas = models.Board.objects.all().filter(category=category)
+            page = request.GET.get('page', 1)
+            p = Paginator(datas, 3)  # 페이지당 글 수
+            sub = p.page(page)
+            context = {"datas": sub, "category": category, "username": username}
             return render(request, "myboard/list.html", context)
         elif mode == 'detail':
             p = get_object_or_404(models.Board, pk=pk)
@@ -44,13 +66,16 @@ class BoardView(View):
                 post.author = user
                 post.category=category
                 file = request.FILES.get('file1')
-                filename = file._name
-                fp = open(settings.BASE_DIR + "/static/" + filename, "wb")
-                for chunk in file.chunks():
-                    fp.write(chunk)
-                fp.close()
-                post.image = filename
+                if file != None:
+                    filename = file._name
+                    fp = open(settings.BASE_DIR + "/static/" + filename, "wb")
+                    for chunk in file.chunks():
+                        fp.write(chunk)
+                    fp.close()
+                    post.image = filename
             post.save()
             return redirect('myboard', category, 0, 'list')
         return render(request, "myboard/upload.html", {'form': form})
+
+
 

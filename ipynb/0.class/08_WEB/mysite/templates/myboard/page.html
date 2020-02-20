@@ -1,10 +1,9 @@
-{% extends 'myboard/base.html' %}   <!--이 소스로 다른 소스를 채울 거라는 걸 명시한다-->
 
-{% block content %}
-<a href="{% url 'myboard' category 0 'add' %}">Add </a> <br>
 
-{% for d in datas %}
-<a href="{% url 'myboard' d.category d.pk 'detail' %}"> {{d.title}} </a> 조회수 {{d.cnt}} <br>
+{%  for data in datas %}
+
+   {{data.id}}  / {{data.name}}  <br>
+
 {% endfor %}
 
 {% if datas.has_other_pages %}
@@ -27,8 +26,3 @@
             <span>&raquo;</span>
         {%endif %}
     {%endif%}
-
-
-
-
-{% endblock %}
