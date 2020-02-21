@@ -29,7 +29,7 @@ def login(request):
     if id == pwd:
         request.session['user'] = id
 
-        return redirect("/service")    #service(requests)
+        return redirect("/service")    #service(request)
     return redirect("/static/login.html")
 
 def service(request):
