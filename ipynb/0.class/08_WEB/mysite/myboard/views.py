@@ -6,8 +6,66 @@ from . import forms
 from . import models
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.db import connection
 
 # Create your views here.
+
+cursor = connection.cursor()
+
+def photolist(request, username):
+    SQL = f"""SELECT filename
+        FROM myboard_image
+        WHERE author_id = (SELECT id FROM auth_user WHERE username = '{username}')
+        """
+    cursor.execute(SQL)
+    data = dictfetchall(cursor)
+    context = {'datas': data, 'username': username}
+    return render(request, 'myboard/photolist.html', context)
+
+def upload(request):
+    # static에 저장
+    username = request.GET.get('username')
+    file = request.GET.get('filename')
+    filename = file._name
+    fp = open(settings.BASE_DIR + f"/static/faces/{username}/" + filename, "wb")
+    for chunk in file.chunks():
+        fp.write(chunk)
+    fp.close()
+
+    # db에 저장
+    sql = f"""SELECT id from auth_user where username='{username}'"""
+    cursor.execute(sql)
+    author_id = cursor.fetchone()[0]
+    SQL = f"""
+    INSERT INTO "main"."myboard_image"
+    ("author_id", "filename")
+    VALUES ({author_id}, '{filename}');
+    """
+    cursor.execute(SQL)
+    return JsonResponse()
+
+def dictfetchall(cursor):   #cursor는 execute 후, fecth 전의 cursor다
+    desc = cursor.description
+    return [
+        dict(zip([element[0] for element in desc], row))
+        for row in cursor.fetchall()
+    ]
+
+def listsql(request, category, page):
+    username = request.session['username']
+    SQL = """SELECT b.id, title, cnt, username, category
+    FROM myboard_board b, auth_user u
+
+    WHERE b.author_id = u.id
+    AND username= "@username"
+    AND category="@category"
+    """
+    SQL = SQL.replace('@username', username).replace('@category', category)
+    cursor.execute(SQL)
+    data = dictfetchall(cursor)
+    sub = data[(page-1)*3: page*3]
+    return render(request, 'myboard/list3.html', {"datas": sub})
+
 
 def ajaxdel(request):   #게시물 지우기
     pk = request.GET.get("pk")
@@ -76,6 +134,8 @@ class BoardView(View):
             post.save()
             return redirect('myboard', category, 0, 'list')
         return render(request, "myboard/upload.html", {'form': form})
+
+
 
 
 

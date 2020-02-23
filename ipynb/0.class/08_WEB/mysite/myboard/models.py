@@ -3,7 +3,6 @@ from django.utils import timezone
 
 
 # Create your models here.
-
 class Board(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)   #auth.User를 지울 때 해당 User가 작성한 Post도 지우도록 설정
     title = models.CharField(max_length=200)
